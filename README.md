@@ -2,7 +2,7 @@
 Recommender system to analyse our next predicate (vertex) in DAG.
 
 How to use it?
-A file named "Report & Manual.pdf" is included to guide through steps on how to use it.In the report I forgot to mention, PLEASE REFRESH THE PAGE WHEN YOU WANT TO REUSE THE RECOMMENDER SYSTEM (Sorry, for the bug.)
+<br>A file named "Report & Manual.pdf" is included to guide through steps on how to use it.In the report I forgot to mention, PLEASE REFRESH THE PAGE WHEN YOU WANT TO REUSE THE RECOMMENDER SYSTEM (Sorry, for the bug.)
 
 How good is this?
 Truly speaking, the performance has not been tested on any dataset. Only analysis of how the parameters (weights in case of SGD, probabilities in case of NB and growth of trees) are manually analysed. It seems to pick up my interests in predicates really well.
@@ -22,4 +22,4 @@ Can this be made better?
 Oh hell yeah! This is just to start the job running! There are better ideas that can be implemented well in online mode.Like I haven't made any feature which takes into account the adversary of among the predicates present in the set of possible next predicates.
 
 Did I like this assignment?
-Yeah really, it kept me involved for 2 days. I would like to do similar and far too much better work.bnm 
+Yeah really, it kept me involved for 2 days. I would like to do similar and far too much better work. 
