@@ -1,0 +1,1 @@
+algo = $('input[name=algo]:checked').val();

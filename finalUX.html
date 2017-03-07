@@ -1,0 +1,234 @@
+<!DOCTYPE HTML>
+<html>
+<head> 
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="css/main.css">
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="createUniversalGraph.js"></script>
+<script type="text/javascript">
+var linearGraph = [];
+var commandSequence = [];
+var filename ="";
+	  function handleFileSelect(file_id)
+            {               
+                if (window.File && window.FileReader && window.FileList && window.Blob) {
+
+                } else {
+                    alert('The File APIs are not fully supported in this browser.');
+                    return;
+                }   
+
+                input = document.getElementById(file_id);
+                if (!input) {
+                  alert("Um, couldn't find the fileinput element.");
+               }
+               else if (!input.files) {
+                  alert("This browser doesn't seem to support the `files` property of file inputs.");
+               }
+               else if (!input.files[0]) {
+                  alert("Please select a file before clicking 'Load'");               
+               }
+               else {
+                  file = input.files[0];
+                  fr = new FileReader();
+                  fr.onload = receivedText;
+                  fr.readAsText(file);
+               }
+            }
+
+            function receivedText() {     
+				linearGraph = [];
+				commandSequence = [];
+				var canvas = document.getElementById("graph");
+				var ctx = canvas.getContext("2d");
+				ctx.beginPath();
+				ctx.clearRect(0,0,500,500);
+				ctx.closePath();
+			   json2graph(fr.result,linearGraph);
+			   var dLsit = depthList(linearGraph);
+               drawMain(dLsit,500,500);
+            }
+	// File Uploading styling
+	$(document).on('click', '.browse', function(){
+	  var file = $(this).parent().parent().parent().find('.file');
+	  file.trigger('click');
+	});
+	$(document).on('change', '.file', function(){
+	  $(this).parent().find('.form-control').val($(this).val().replace(/C:\\fakepath\\/i, ''));
+	});
+</script>
+</head>
+<body>
+
+<nav class="navbar navbar-inverse o-nav">
+	<div class="container">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#">Course Manager</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container-fluid">
+	<div class="row">
+
+		<div class="col-md-5">
+
+			<div class="panel panel-primary">
+			  <div class="panel-heading">
+			    <h3 class="panel-title">Make Universal Graph</h3>
+			  </div>
+			  <div class="panel-body">
+			    <div class="col-md-12">
+			    	<form class="form-horizontal">
+
+			    		<div class="form-group">
+			    			<div class="col-md-5">
+			    				<button class="btn btn-primary" data-toggle="modal" data-target="#prompt_modal" type="button" id="createCourse">Create Course</button>
+			    			</div>
+			    			<div class="col-md-7">
+						      <input class="form-control" type = "text" name = "" id="prompt_name" readonly>
+						    </div>
+			    		</div>
+
+							<div class="form-group">
+								<label for="" class="col-md-5 control-label">New Predicate</label>
+						    <div class="col-md-7">
+						      <input class="form-control" type = "text" name = "newNode" id="newNode" readonly>
+						    </div>
+						  </div>
+
+							<div class="form-group">
+								<label for="" class="col-md-5 control-label">Pre-requisite Predicate (linked New Predicate)</label>
+						    <div class="col-md-7">
+						      <input class="form-control" type = "text" name = "oldLinkedNode" id="oldLinked" readonly>
+						    </div>
+						  </div>
+
+						  <div class="form-group">
+								<label for="" class="col-md-5 control-label">Predecessor Predicate (unlinked New Predicate)</label>
+						    <div class="col-md-7">
+						      <input class="form-control" type = "text" name = "oldUnlinkedNode" id="oldUnlinked" readonly>
+						    </div>
+						  </div>
+
+						  <div class="form-group">
+						  	<div class="col-md-12">
+						      <button class="btn btn-primary" onclick="f_addButton()" type="button" id="addButton">Add Predicate</button>
+									<button class="btn btn-primary" onclick="saveButton()" type="button" id="saveCourse">Save Course</button>
+								</div>
+						  </div>
+							
+						</form>
+			    </div>
+			  </div>
+
+			  <div class="panel-heading">
+			    <h3 class="panel-title">Create Subgraph</h3>
+			  </div>
+			  <div class="panel-body">
+			    <div class="col-md-12">
+			    	<form class="form-horizontal">
+
+						  <div class="form-group">
+								<label for="" class="col-md-4 control-label">Enter subgraph root</label>
+						    <div class="col-md-4">
+						      <input class="form-control" type="text" name="subgraphRoot" id="subgraphRoot"/>
+						    </div>
+						    <div class="">
+						      <button class="btn btn-primary" onclick="drawSubgraph()" type="button" id="createSubgraph">Create Subgraph</button>
+						    </div>
+						  </div>
+							
+						</form>
+			    </div>
+			  </div>
+
+			  <div class="panel-heading">
+			    <h3 class="panel-title">View a course detail</h3>
+			  </div>
+			  <div class="panel-body">
+			    <div class="col-md-12">
+			    	<form class="form-horizontal">
+
+						  <div class="form-group">
+						    <input type="file" class="file" id="selectCourse" onchange="handleFileSelect('selectCourse');"/>
+						    <div class="input-group col-md-12">
+						      <input type="text" class="form-control" placeholder="Upload File" readonly>
+						      <span class="input-group-btn">
+						        <button class="browse btn btn-primary" type="button">Browse</button>
+						      </span>
+						    </div>
+						  </div>
+							
+						</form>
+			    </div>
+			  </div>
+			
+			</div>
+
+		</div>
+
+		<div class="col-md-7">
+
+			<div class="panel panel-primary">
+			  <div class="panel-heading">
+			    <h3 class="panel-title">Course Layout</h3>
+			  </div>
+			  <div class="panel-body">
+			    <canvas id="graph" width="500px" height="500px"></canvas>
+			  </div>
+			</div>
+		
+		</div>
+
+
+	</div>	
+</div>
+
+<!-- Prompt modal -->
+<div id="prompt_modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Please enter the name of the course.</h4>
+      </div>
+      <div class="modal-body" style="color: red;">
+        <form id="prompt_form">
+        	<div class="form-group">
+        		<input class="form-control" type="text" name="" id="prompt_val"/>
+        	</div>
+        	<div class="form-group">
+        		<button class="btn btn-primary" onclick="createButton()" type="button" id="createCourse">Submit</button>
+        	</div>
+        </form>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Back</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.Prompt modal -->
+</div>
+
+<!-- Error modal -->
+<div id="error_modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Invalid Input</h4>
+      </div>
+      <div class="modal-body" style="color: red;">
+        <div id="error" style="padding-bottom: 10px;font-weight:bold;"></div>
+	    <div class="modal-footer">
+	      <button type="button" class="btn btn-default" data-dismiss="modal">Back</button>
+	    </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.Error modal -->
+</div>
+
+</body>
+
+</html>

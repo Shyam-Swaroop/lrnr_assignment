@@ -1,0 +1,354 @@
+<!DOCTYPE HTML> 
+<html> 
+<head>     
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="css/main.css">
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script>   
+var linearGraph=[];   
+var commandSequence = [];
+var rList = []; //container for all recommended nodes at time t
+var considerDepth=1; //consider_predicate_not_part_of_syllabus_depth=1
+var dList = [];
+    function handleFileSelect(file_id)
+    {               
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+
+        } else {
+            alert('The File APIs are not fully supported in this browser.');
+            return;
+        }   
+
+        input = document.getElementById(file_id);
+        if (!input) {
+          alert("Um, couldn't find the fileinput element.");
+       }
+       else if (!input.files) {
+          alert("This browser doesn't seem to support the `files` property of file inputs.");
+       }
+       else if (!input.files[0]) {
+          alert("Please select a file before clicking 'Load'");               
+       }
+       else {
+          file = input.files[0];
+          fr = new FileReader();
+          fr.onload = receivedText;
+          fr.readAsText(file);
+       }
+    }
+
+    function receivedText() {           
+		linearGraph = [];commandSequence=[];rList=[];//empty all global variables
+		json2graph(fr.result,linearGraph);
+		dList = depthList(linearGraph);
+		//intialisation of features, 
+		for(var i=0;i<linearGraph.length;i++){
+			linearGraph[i].features = initialFeatureExtractor(linearGraph[i],0); //do it for initialisation, few features are dynamic so will change with time
+		}
+    }           
+function handleFileSelect2(file_id)
+    {               
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+
+        } else {
+            alert('The File APIs are not fully supported in this browser.');
+            return;
+        }   
+
+        input = document.getElementById(file_id);
+        if (!input) {
+          alert("Um, couldn't find the fileinput element.");
+       }
+       else if (!input.files) {
+          alert("This browser doesn't seem to support the `files` property of file inputs.");
+       }
+       else if (!input.files[0]) {
+          alert("Please select a file before clicking 'Load'");               
+       }
+       else {
+          file = input.files[0];
+          fr = new FileReader();
+          fr.onload = receivedInput;
+          fr.readAsText(file);
+       }
+    }
+	
+	function receivedInput(){
+	
+	}
+
+    var inputs = document.querySelectorAll( '.inputfile' );
+	Array.prototype.forEach.call( inputs, function( input )
+	{
+		var label	 = input.nextElementSibling,
+			labelVal = label.innerHTML;
+		console.log("triggered");
+		input.addEventListener( 'change', function( e )
+		{
+			var fileName = '';
+			fileName = e.target.value.split( '\\' ).pop();
+
+			if( fileName ){
+				label.querySelector('span').innerHTML = fileName;
+				console.log(fileName);
+			}
+			else
+				label.innerHTML = labelVal;
+		});
+	});
+	
+		// File Uploading styling
+	$(document).on('click', '.browse', function(){
+	 var file = $(this).parent().parent().parent().find('.file');
+	 file.trigger('click');
+	});
+	$(document).on('change', '.file', function(){
+	  $(this).parent().find('.form-control').val($(this).val().replace(/C:\\fakepath\\/i, ''));
+	});
+
+	function sem_negative(){
+		var sem_no = parseInt(document.getElementById("sem_no").value);
+		if(sem_no > 1){
+			sem_no = sem_no - 1;
+			document.getElementById("sem_no").value = sem_no;
+		}
+	}
+
+	function sem_positive(){
+		var sem_no = parseInt(document.getElementById("sem_no").value);
+		sem_no = sem_no + 1;
+		document.getElementById("sem_no").value = sem_no;
+	}
+</script>
+<script src="createSyllabusSupport.js"></script>
+<script src="featureExtractor.js"></script>
+<script src="naivebayes.js"></script>
+<script src="randomForest.js"></script>
+<script src="baseLine.js"></script>
+</head>
+
+<body>
+
+<nav class="navbar navbar-inverse o-nav">
+	<div class="container">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#">Syllabus Manager</a>
+		</div>
+	</div>
+</nav>
+
+<div class="container-fluid">
+	<div class="row">
+
+		<div class="col-md-4">
+			<div class="panel panel-primary">
+			  <div class="panel-heading">
+			    <h3 class="panel-title">Recommender System</h3>
+			  </div>
+			  <div class="panel-body">
+			    <div class="col-md-12">
+			    	<div class="form-horizontal">
+
+							<div class="form-group">
+								<label for="" class="col-md-5 control-label">Select Course</label>
+						    <input type="file" class="file" id="selectCourse" onchange="handleFileSelect('selectCourse');"/>
+						    <div class="input-group col-md-7">
+						      <input type="text" class="form-control" placeholder="Upload File" readonly>
+						      <span class="input-group-btn">
+						        <button class="browse btn btn-primary" type="button">Browse</button>
+						      </span>
+						    </div>
+						  </div>
+
+							<div class="form-group">
+								<label for="startNode" class="col-md-5 control-label">Syllabus starts at Predicate</label>
+								<div class="col-md-7">
+									<input type="text" class="form-control" name = "start" id="startNode">
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label for="current" class="col-md-5 control-label">Course covered</label>
+								<div class="col-md-7">
+									<input type="text" class="form-control" name="current" id="current" readonly>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label for="" class="col-md-3 control-label">Semester</label>
+								<div class="col-md-3" style="padding-left: 0px !important">
+									<input class="form-control" type="number" id="sem_no" value="1" name="" readonly>
+								</div>
+						    <div class="input-group col-md-6">
+						    	<div class="col-md-3">
+						      	<button class="btn btn-primary" type="button" onclick="sem_negative()"> -1 </button>
+						      </div>
+						      <div class="col-md-2  col-md-offset-1">
+						      	<button class="btn btn-primary" type="button" onclick="sem_positive()"> +1 </button>
+						      </div>
+						    </div>
+						  </div>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel-heading">
+			    <h3 class="panel-title">Select input json file</h3>
+			  </div>
+			  <div class="panel-body">
+					<div class="form-group">
+				    <input type="file" class="file" id="fileinput2" onchange="handleFileSelect2('fileinput2');"/>
+				    <div class="input-group col-md-12">
+				      <input type="text" class="form-control" placeholder="Upload File" readonly>
+				      <span class="input-group-btn">
+				        <button class="browse btn btn-primary" type="button">Browse</button>
+				      </span>
+				    </div>
+				  </div>
+				</div>
+
+				<div class="panel-heading">
+			    <h3 class="panel-title">Create Subgraph</h3>
+			  </div>
+			  <div class="panel-body">
+					<div class="form-group">
+				    <input type="file" class="file" id="fileinput3" onchange="handleFileSelect('fileinput3');"/>
+				    <div class="input-group col-md-12">
+				      <input type="text" class="form-control" placeholder="Upload File" readonly>
+				      <span class="input-group-btn">
+				        <button class="browse btn btn-primary" type="button">Browse</button>
+				      </span>
+				    </div>
+				  </div>
+				</div>			
+			</div>
+		</div>
+
+		<div class="col-md-4">
+			<div class="panel panel-primary">
+			  <div class="panel-heading">
+			    <h3 class="panel-title">Models</h3>
+			  </div>
+			  <div class="panel-body"  style="padding-bottom:15px !important;">
+			    <table class="table table-bordered">
+					  <thead>
+					    <tr>
+					      <th>Alogorithm</th>
+					      <th>Confidence</th>
+					      <th>Accuracy (%)</th>
+					    </tr>
+					  </thead>
+					  <tbody>
+					    <tr>
+					      <th scope="row"><input type="radio" name="algo" value="1" checked> SGD</th>
+					      <td id="c1"></td>
+					      <td id="a1"></td>
+					    </tr>
+					    <tr>
+					      <th scope="row"><input type="radio" name="algo" value="2"> Naive Bayes</th>
+					      <td id="c2"></td>
+					      <td id="a2"></td>
+					    </tr>
+					    <tr>
+					      <th scope="row"><input type="radio" name="algo" value="3"> Random Forest</th>
+					      <td id="c3"></td>
+					      <td id="a3"></td>
+					    </tr>
+						<tr>
+					      <th scope="row"><input type="radio" name="algo" value="4"> Base Line</th>
+					      <td id="c4"></td>
+					      <td id="a4"></td>
+					    </tr>
+					  </tbody>
+					</table>
+					<button class="btn btn-sm btn-primary col-md-5"  onclick="init()">Start Recommender</button>
+			  </div>
+			</div>
+		</div>
+
+		<div class="col-md-4">
+
+			<div class="panel panel-primary">
+			  <div class="panel-heading">
+			    <h3 class="panel-title">Recommended Predicate </h3>
+			  </div>
+			  <div class="panel-body" style="padding-bottom: 15px !important;">
+			    
+			    <div class="form-horizontal">
+						
+						<div class="form-group">
+							<label for="recc" class="col-md-5 control-label">Recommended Concept : </label>
+							<div class="col-md-7">
+								<input type="text" class="form-control" name="recommendation" id="recc" readonly>
+							</div>
+						</div>
+
+						<p style="margin-top:2.2em; text-align: center;"><b>Do you like this recommendation :</b></p>
+						<button class="btn btn-sm btn-primary col-md-5 " id="yesNext" onclick="training(1)">Yes, Next</button>
+						<button class="btn btn-sm btn-primary col-md-5 pull-right" id="noBetter" onclick="training(0)">No, Do Better</button>
+						<div style="display:block; clear:both;">&nbsp;</div>
+						<button class="btn btn-sm btn-primary col-md-5 " id="yesEnd" onclick="endFunc(1)">Yes, End</button>
+						<button class="btn btn-sm btn-primary col-md-5 pull-right" id="noEnd" onclick="endFunc(0)">No, End</button>
+					</div>
+
+			  </div>
+			</div>
+		
+		</div>
+
+
+	</div>	
+</div>
+
+<!-- Success modal -->
+<div id="error_modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Success. You aced it!</h4>
+      </div>
+      <div class="modal-body" style="color: red;">
+        <div id="error" style="padding-bottom: 10px;font-weight:bold;"></div>
+	    <div class="modal-footer">
+	      <button type="button" class="btn btn-default" data-dismiss="modal">Back</button>
+	    </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.Success modal -->
+</div>
+<div id="error_modal1" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Sorry, No more reccomendations.</h4>
+      </div>
+      <div class="modal-body" style="color: red;">
+        <div id="error1" style="padding-bottom: 10px;font-weight:bold;"></div>
+	    <div class="modal-footer">
+	      <button type="button" class="btn btn-default" data-dismiss="modal">Back</button>
+	    </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.Success modal -->
+</div>
+<div id="error_modal2" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Zapdos Syllabus Manager</h4>
+      </div>
+      <div class="modal-body" style="color: red;">
+        <div id="error2" style="padding-bottom: 10px;font-weight:bold;"></div>
+	    <div class="modal-footer">
+	      <button type="button" class="btn btn-default" data-dismiss="modal">Back</button>
+	    </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.Success modal -->
+</div>
+</body> 
+</html>
