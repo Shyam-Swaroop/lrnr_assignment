@@ -4,7 +4,7 @@ Recommender system to analyse our next predicate (vertex) in DAG.
 >>How to use it?
 A file named "Report & Manual.pdf" is included to guide through steps on how to use it.In the report I forgot to mention in this report, PLEASE REFRESH THE PAGE WHEN YOU WANT TO REUSE THE RECOMMENDER SYSTEM(Sorry, for the bug.)
 
->How good is this?
+>>How good is this?
 Truly speaking, the performance has not been tested on any dataset. Only analysis of how the parameters (weights in case of SGD, probabilities in case of NB and growth of trees) are manually analysed. It seems to pick up my interests in predicates really well.
 
 Like when you start preferring travelling in depth in the graph, it will soon adapt to your taste and recommend deeper predicates, and also it cuts this process of going in depth when it feels you have travelled to much depth and you generally do not prefer to go beyond this depth.
