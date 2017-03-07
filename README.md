@@ -2,7 +2,7 @@
 Recommender system to analyse our next predicate (vertex) in DAG.
 
 ###How to use it?
-**_finalUX.html_**,** _finalCS.html_** contains the web pages. Recommender system works in **_finalCS.html_**.
+**_finalUX.html_**, **_finalCS.html_** contains the web pages. Recommender system works in **_finalCS.html_**.
 A file named **_Report & Manual.pdf_** is included to guide through steps on how to use it.In the report I forgot to mention in this report, **PLEASE REFRESH/RELOAD THE PAGE (_finalCS.html_) WHEN YOU WANT TO REUSE THE RECOMMENDER SYSTEM**(Sorry, for the bug.)
 
 ###How good is this?
