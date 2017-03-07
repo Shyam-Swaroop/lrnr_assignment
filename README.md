@@ -11,7 +11,7 @@ Truly speaking, the performance has not been tested on any dataset. Only analysi
 Like when you start preferring travelling in depth in the graph, it will soon adapt to your taste and recommend deeper predicates, and also it cuts this process of going in depth when it feels you have travelled to much depth and you generally do not prefer to go beyond this depth.
 
 ###Are there bugs?
-Unfortunately yes, this project was done in very short time. All codes are original work by me and without using any libraries. There are bugs related to stitching different parts of project together. But this bugs do not hamper the performance of recommender system as machine learning algorithms coded are bug-free to the best of my knowledge.
+Unfortunately yes, this project was done in very short time. All codes are original work by me and without using any libraries. There are bugs related to stitching different parts of project together. But this bugs do not hamper the performance of recommender system as machine learning algorithms coded are bug-free to the best of my knowledge. Refer to Issues of this github repository.
 
 ###Why SGD, NB and Random Forest?
 Because, these are the algorithms which work best in online mode with less-time complexity as compared to ANN.
