@@ -14,7 +14,7 @@ Like when you start preferring travelling in depth in the graph, it will soon ad
 Unfortunately yes, this project was done in very short time. All codes are original work by me and without using any libraries. There are bugs related to stitching different parts of project together. But this bugs do not hamper the performance of recommender system as machine learning algorithms coded are bug-free to the best of my knowledge. Refer to Issues of this github repository.
 
 ###Why SGD, NB and Random Forest?
-Because, these are the algorithms which work best in online mode with less-time complexity as compared to ANN.
+Because, these are the algorithms which work best in online mode with less-time complexity as compared to ANN. All three algorithms behave differently in online version. All algorithms have been implemented assuming temporal behaviour of user as dynamic. For example, in random forest a tree will die and create a new tree if its OOBE rise higher than a certain level.
 
 ###Are details of features shared?
 No, but will be shared if you ask so.
